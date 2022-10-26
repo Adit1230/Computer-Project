@@ -188,5 +188,37 @@ def signup():
 
     conn.commit()
     conn.close()
+
+def auth():
+    confirmed=False
+    check=False
+    auth_win=Toplevel(main_win)
+
+    def confirm_pass():
+        check=True
+        if tb_pass.get()==user_list[3]:
+            confirmed=True
+            auth_win.destroy()
+        else:
+            confirmed=False
+            auth_win.destroy()
+            messagebox.showwarning("Authentication failed","Wrong password, Please try again.")
+
+    lbl_auth=Label(auth_win,text="Please confirm your password to continue")
+    lbl_auth.grid(row=0,column=0,columnspan=2)
+    lbl_pass=Label(auth_win,text="Password:")
+    lbl_pass.grid(row=1,column=0)
+    tb_pass=Entry(auth_win,show='*')
+    tb_pass.grid(row=1,column=1)
+    btn_auth=Button(auth_win,text="Confirm",command=confirm_pass)
+    btn_auth.grid(row=2,column=0,columnspan=2)
+
+    auth_win.mainloop()
     
+    if check:
+        if confirmed:
+            return(True)
+        else:
+            return(False)
+
 init()
