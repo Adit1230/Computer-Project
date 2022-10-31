@@ -221,4 +221,100 @@ def auth():
         else:
             return(False)
 
+def deposit():
+    conn=sqlite3.connect("Database.db")
+    cur=conn.cursor()
+    
+    if tb_deposit.get()=='':
+        messagebox.showwarning("Invalid deposit amount","Please enter amount to deposit")
+        return()
+    elif not tb_deposit.get().isdigit():
+        messagebox.showwarning("Invalid deposit amount","Amount to deposit should be a number")
+        return()
+    else:
+        cur.execute("SELECT Balance FROM Users WHERE rowid = ?",(user_list[0],))
+        balance=cur.fetchone()
+        cur.execute("UPDATE Users SET Balance = ? WHERE rowid = ?",(balance+int(tb_deposit.get()),user_list[0]))
+        conn.commit()
+        messagebox.showinfo("Transaction succesfull","Transaction completed successfully")
+        update_info()
+
+    conn.commit()
+    conn.close()
+
+def withdraw():
+    conn=sqlite3.connect("Database.db")
+    cur=conn.cursor()
+
+    if tb_withdraw.get()=='':
+        messagebox.showwarning("Invalid withdraw amount","Please enter amount to withdraw")
+        return()
+    elif not tb_withdraw.get().isdigit():
+        messagebox.showwarning("Invalid withdraw amount","Amount to withdraw should be a number")
+        return()
+    else:
+        cur.execute("SELECT Balance FROM Users WHERE rowid = ?",(user_list[0],))
+        balance=cur.fetchone()
+        
+        if tb_withdraw.get()>balance:
+            messagebox.showwarning("Error","You cannot withdraw more than you have in your account")
+            return()
+        elif not(auth()):
+            return()
+        else:
+            cur.execute("UPDATE Users SET Balance = ? WHERE rowid = ?",(balance-int(tb_withdraw.get()),user_list[0]))
+            conn.commit()
+            messagebox.showinfo("Transaction succesfull","Transaction completed successfully")
+            update_info()
+
+    conn.commit()
+    conn.close()
+
+def transfer():
+    conn=sqlite3.connect("Database.db")
+    cur=conn.cursor()
+
+    transfer_amount=tb_transfer.get()
+    
+    if transfer_amount=='':
+        messagebox.showwarning("Invalid transfer amount","Please enter amount to transfer")
+        return()
+    elif not transfer_amount.isdigit():
+        messagebox.showwarning("Invalid transfer amount","Amount to transfer should be a number")
+        return()
+    else:
+        cur.execute("SELECT Balance FROM Users WHERE rowid = ?",(user_list[0],))
+        balance=cur.fetchone()
+
+        cur.execute("SELECT rowid,Balance FROM Users WHERE Usename=?",(tb_user.get(),))
+        transferee_list=cur.fetchone()
+        
+        if int(transfer_amount)>balance:
+            messagebox.showwarning("Error","You cannot transfer more than you have in your account")
+            return()
+        elif transferee_list=None:
+            messagebox.showwarning("Invalid Username","No account with username "+tb_user.get()+" exists")
+        elif not(auth()):
+            return()
+        else:
+            cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(balance-int(transfer_amount),user_list[0]))
+            conn.commit()
+
+            cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(transferee_list[1]+int(transfer_amount),transferee_list[0])
+            conn.commit()
+
+        conn.commit()
+        conn.close()
+            
+def update_info():
+    global user_list
+    
+    conn=sqlite3.connect("Database.db")
+    cur=conn.cursor()
+
+    cur.execute("SELECT * FROM Users WHERE rowid = ?",(user_list[0],))
+    user_list=cur.fetchone()
+
+    lbl_balance.config(text=("Balance:"+str(user_list[4])))
+
 init()
