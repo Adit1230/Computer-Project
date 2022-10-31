@@ -292,7 +292,7 @@ def transfer():
         if int(transfer_amount)>balance:
             messagebox.showwarning("Error","You cannot transfer more than you have in your account")
             return()
-        elif transferee_list=None:
+        elif transferee_list==None:
             messagebox.showwarning("Invalid Username","No account with username "+tb_user.get()+" exists")
         elif not(auth()):
             return()
@@ -300,7 +300,7 @@ def transfer():
             cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(balance-int(transfer_amount),user_list[0]))
             conn.commit()
 
-            cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(transferee_list[1]+int(transfer_amount),transferee_list[0])
+            cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(transferee_list[1]+int(transfer_amount),transferee_list[0]))
             conn.commit()
 
         conn.commit()
