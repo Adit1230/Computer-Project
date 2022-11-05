@@ -99,6 +99,7 @@ def init_signup(From):
 def init_main(From):
     global main_win
     global user_list
+    global frame_content
     
     if From=='login':
         login_win.destroy()
@@ -118,8 +119,42 @@ def init_main(From):
 
     btn_logout=Button(main_win,text="Logout",command=lambda: init_login('main'))
     btn_logout.grid(row=3,column=0)
+
+    frame_btn=Frame(main_win,width=500,height=500,pady=10)
+    frame_btn.grid(row=4,column=0)
+    
+    btn_deposit=Button(frame_btn,text='Deposit',command=lambda: display_tab('deposit')  )
+    btn_deposit.grid(row=0,column=0)
+    
+    btn_withdrawal=Button(frame_btn,text='Withdraw',command=lambda: display_tab('withdraw') )
+    btn_withdrawal.grid(row=1,column=0)
+
+    btn_transfer=Button(frame_btn,text='Transfer',command=lambda: display_tab('transfer') )
+    btn_transfer.grid(row=2,column=0)
+    
+    frame_content=Frame(main_win,width=500,height=500,pady=10)
+    frame_content.grid(row=4,column=1)
     
     main_win.mainloop()
+    
+def display_tab(tab):
+    for widgets in frame_content.winfo_children():
+        widgets.destroy()
+
+    if tab=='transfer':
+        global  tb_user
+        global tb_transfer
+        
+        lbl_user=Label(frame_content,text='Enter username of recepient :').grid(row=0,column=0)
+        tb_user=Entry(frame_content)
+        tb_user.grid(row=0,column=1)
+
+        lbl_amt=Label(frame_content,text='Enter amount to be transferred :').grid(row=1,column=0)
+        tb_transfer=Entry(frame_content)
+        tb_transfer.grid(row=1,column=1)
+
+        btn_transfer = Button(frame_content , text = 'Transfer ' , command = transfer)
+        btn_transfer.grid(row=2, column = 0 , columnspan = 2)
 
 def login():
     global user_list
@@ -284,12 +319,12 @@ def transfer():
         return()
     else:
         cur.execute("SELECT Balance FROM Users WHERE rowid = ?",(user_list[0],))
-        balance=cur.fetchone()
+        balance=float(cur.fetchone()[0])
 
-        cur.execute("SELECT rowid,Balance FROM Users WHERE Usename=?",(tb_user.get(),))
+        cur.execute("SELECT rowid,Balance FROM Users WHERE Username=?",(tb_user.get(),))
         transferee_list=cur.fetchone()
         
-        if int(transfer_amount)>balance:
+        if float(transfer_amount) >balance:
             messagebox.showwarning("Error","You cannot transfer more than you have in your account")
             return()
         elif transferee_list==None:
@@ -302,6 +337,8 @@ def transfer():
 
             cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(transferee_list[1]+int(transfer_amount),transferee_list[0]))
             conn.commit()
+
+            messagebox.showinfo("Transaction successful","Transaction completed successfully")
 
         conn.commit()
         conn.close()
