@@ -100,6 +100,7 @@ def init_main(From):
     global main_win
     global user_list
     global frame_content
+    global lbl_balance
     
     if From=='login':
         login_win.destroy()
@@ -142,7 +143,7 @@ def display_tab(tab):
         widgets.destroy()
 
     if tab=='transfer':
-        global  tb_user
+        global tb_user
         global tb_transfer
         
         lbl_user=Label(frame_content,text='Enter username of recepient :').grid(row=0,column=0)
@@ -155,6 +156,24 @@ def display_tab(tab):
 
         btn_transfer = Button(frame_content , text = 'Transfer ' , command = transfer)
         btn_transfer.grid(row=2, column = 0 , columnspan = 2)
+
+    if tab=='withdraw':
+        global tb_withdraw
+        
+        lbl_withdraw = Label(frame_content , text = 'Enter amount to be withdrawn : ' ).grid(row=0 , column=0)
+        tb_withdraw = Entry(frame_content)
+        tb_withdraw.grid(row=0,column=1)
+        btn_withdraw = Button(frame_content , text = 'Withdraw' , command = withdraw)
+        btn_withdraw.grid(row=1, column=0, columnspan = 2)
+
+    if tab=='deposit':
+        global tb_deposit
+
+        lbl_deposit = Label(frame_content , text = 'Enter amount to be deposited : ' ).grid(row=0 , column=0)
+        tb_deposit = Entry(frame_content)
+        tb_deposit.grid(row=0,column=1)
+        btn_deposit = Button(frame_content , text = 'Deposit' , command = deposit)
+        btn_deposit.grid(row=1, column=0, columnspan = 2)
 
 def login():
     global user_list
@@ -224,38 +243,6 @@ def signup():
     conn.commit()
     conn.close()
 
-def auth():
-    confirmed=False
-    check=False
-    auth_win=Toplevel(main_win)
-
-    def confirm_pass():
-        check=True
-        if tb_pass.get()==user_list[3]:
-            confirmed=True
-            auth_win.destroy()
-        else:
-            confirmed=False
-            auth_win.destroy()
-            messagebox.showwarning("Authentication failed","Wrong password, Please try again.")
-
-    lbl_auth=Label(auth_win,text="Please confirm your password to continue")
-    lbl_auth.grid(row=0,column=0,columnspan=2)
-    lbl_pass=Label(auth_win,text="Password:")
-    lbl_pass.grid(row=1,column=0)
-    tb_pass=Entry(auth_win,show='*')
-    tb_pass.grid(row=1,column=1)
-    btn_auth=Button(auth_win,text="Confirm",command=confirm_pass)
-    btn_auth.grid(row=2,column=0,columnspan=2)
-
-    auth_win.mainloop()
-    
-    if check:
-        if confirmed:
-            return(True)
-        else:
-            return(False)
-
 def deposit():
     conn=sqlite3.connect("Database.db")
     cur=conn.cursor()
@@ -288,22 +275,42 @@ def withdraw():
         messagebox.showwarning("Invalid withdraw amount","Amount to withdraw should be a number")
         return()
     else:
-        cur.execute("SELECT Balance FROM Users WHERE rowid = ?",(user_list[0],))
-        balance=cur.fetchone()
+        update_info()
+        balance=int(user_list[4])
         
-        if tb_withdraw.get()>balance:
+        if int(tb_withdraw.get())>balance:
             messagebox.showwarning("Error","You cannot withdraw more than you have in your account")
             return()
-        elif not(auth()):
-            return()
         else:
-            cur.execute("UPDATE Users SET Balance = ? WHERE rowid = ?",(balance-int(tb_withdraw.get()),user_list[0]))
-            conn.commit()
-            messagebox.showinfo("Transaction succesfull","Transaction completed successfully")
-            update_info()
+            auth_win=Toplevel(main_win)
 
+            def confirm_pass():
+                    if tb_pass.get()==user_list[3]:
+                        auth_win.destroy()
+                        
+                        cur.execute("UPDATE Users SET Balance = ? WHERE rowid = ?",(balance-int(tb_withdraw.get()),user_list[0]))
+                        conn.commit()
+                        
+                        messagebox.showinfo("Transaction succesful","Amount withdrawn successfully")
+                        update_info()
+                    else:
+                        auth_win.destroy()
+                        messagebox.showwarning("Authentication failed","Wrong password, Please try again.")
+
+            lbl_auth=Label(auth_win,text="Please confirm your password to continue")
+            lbl_auth.grid(row=0,column=0,columnspan=2)
+            lbl_pass=Label(auth_win,text="Password:")
+            lbl_pass.grid(row=1,column=0)
+            tb_pass=Entry(auth_win,show='*')
+            tb_pass.grid(row=1,column=1)
+            btn_auth=Button(auth_win,text="Confirm",command=confirm_pass)
+            btn_auth.grid(row=2,column=0,columnspan=2)
+
+            auth_win.mainloop()
+                
     conn.commit()
     conn.close()
+    return()
 
 def transfer():
     conn=sqlite3.connect("Database.db")
@@ -318,9 +325,9 @@ def transfer():
         messagebox.showwarning("Invalid transfer amount","Amount to transfer should be a number")
         return()
     else:
-        cur.execute("SELECT Balance FROM Users WHERE rowid = ?",(user_list[0],))
-        balance=float(cur.fetchone()[0])
-
+        update_info()
+        balance=int(user_list[4])
+        
         cur.execute("SELECT rowid,Balance FROM Users WHERE Username=?",(tb_user.get(),))
         transferee_list=cur.fetchone()
         
@@ -329,19 +336,43 @@ def transfer():
             return()
         elif transferee_list==None:
             messagebox.showwarning("Invalid Username","No account with username "+tb_user.get()+" exists")
-        elif not(auth()):
-            return()
         else:
-            cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(balance-int(transfer_amount),user_list[0]))
-            conn.commit()
+            auth_win=Toplevel(main_win)
 
-            cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(transferee_list[1]+int(transfer_amount),transferee_list[0]))
-            conn.commit()
+            def confirm_pass():
+                if tb_pass.get()==user_list[3]:
+                    auth_win.destroy()
+                    
+                    cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(balance-int(transfer_amount),user_list[0]))
+                    conn.commit()
 
-            messagebox.showinfo("Transaction successful","Transaction completed successfully")
+                    cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(transferee_list[1]+int(transfer_amount),transferee_list[0]))
+                    conn.commit()
 
+                    messagebox.showinfo("Transaction successful","Transaction completed successfully")
+                    update_info()
+                    
+                    return()
+                    
+                else:
+                    auth_win.destroy()
+                    messagebox.showwarning("Authentication failed","Wrong password, Please try again.")
+                    return()
+
+            lbl_auth=Label(auth_win,text="Please confirm your password to continue")
+            lbl_auth.grid(row=0,column=0,columnspan=2)
+            lbl_pass=Label(auth_win,text="Password:")
+            lbl_pass.grid(row=1,column=0)
+            tb_pass=Entry(auth_win,show='*')
+            tb_pass.grid(row=1,column=1)
+            btn_auth=Button(auth_win,text="Confirm",command=confirm_pass)
+            btn_auth.grid(row=2,column=0,columnspan=2)
+
+            auth_win.mainloop()
+            
         conn.commit()
         conn.close()
+        return()
             
 def update_info():
     global user_list
@@ -349,9 +380,12 @@ def update_info():
     conn=sqlite3.connect("Database.db")
     cur=conn.cursor()
 
-    cur.execute("SELECT * FROM Users WHERE rowid = ?",(user_list[0],))
-    user_list=cur.fetchone()
+    cur.execute("SELECT rowid, * FROM Users WHERE rowid = ?",(user_list[0],))
+    user_list=list(cur.fetchone())
 
     lbl_balance.config(text=("Balance:"+str(user_list[4])))
+    
+    conn.commit()
+    conn.close()
 
 init()
