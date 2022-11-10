@@ -26,24 +26,28 @@ def init_login(From):
         main_win.destroy()
     
     login_win=Tk()
+    login_win.geometry('1500x750')
     login_win.title("Login page")
-    
-    lbl_login=Label(login_win,text="Login").grid(row=0,column=0,columnspan=2)
 
-    lbl_username=Label(login_win,text="Username:").grid(row=1,column=0)
-    tb_username=Entry(login_win)
-    tb_username.grid(row=1,column=1)
+    #Logo = PhotoImage(file ="Bank logo.jpg")
+    #login_win.iconphoto(False, Logo)
     
-    lbl_password=Label(login_win,text="Password:").grid(row=2,column=0)
-    tb_password=Entry(login_win,show='*')
-    tb_password.grid(row=2,column=1)
-    
-    btn_login=Button(text="Login",command=login)
-    btn_login.grid(row=3,column=0,columnspan=2)
+    lbl_login=Label(login_win,text="Login",justify='center',font = ('Arial ' , 25)).place(relx=0.5,rely=0.35,anchor='c')
 
-    lbl_signup=Label(login_win,text="Don't have an account?").grid(row=4,column=0,columnspan=2)
-    btn_signup=Button(text="Signup",command=lambda: init_signup('login'))
-    btn_signup.grid(row=5,column=0,columnspan=2)
+    lbl_username=Label(login_win,text="Username:", font = ('Arial' , 15)).place(relx=0.42,rely=0.4 , anchor='c')
+    tb_username=Entry(login_win ,font = ('Arial' , 15))
+    tb_username.place(relx=0.54,rely=0.4,anchor ='c')
+    
+    lbl_password=Label(login_win,text="Password:",font = ('Arial' , 15)).place(relx=0.42,rely=0.45 , anchor='c')
+    tb_password=Entry(login_win,show='*',font = ('Arial' , 15))
+    tb_password.place(relx=0.54,rely=0.45,anchor ='c')
+    
+    btn_login=Button(text="Login",command=login,font = ('Arial' , 15))
+    btn_login.place(relx=0.5 , rely=0.51,anchor = 'c')
+
+    lbl_signup=Label(login_win,text="Don't have an account?",font = ('Arial' , 15)).place(relx=0.5 , rely = 0.56 , anchor = 'c')
+    btn_signup=Button(text="Signup",font = ('Arial' , 15),command=lambda: init_signup('login'))
+    btn_signup.place(relx=0.5 , rely = 0.61, anchor = 'c')
 
     login_win.mainloop()
 
@@ -121,7 +125,7 @@ def init_main(From):
     btn_logout=Button(main_win,text="Logout",command=lambda: init_login('main'))
     btn_logout.grid(row=3,column=0)
 
-    frame_btn=Frame(main_win,width=500,height=500,pady=10)
+    frame_btn=Frame(main_win,width=100,height=500,pady=10)
     frame_btn.grid(row=4,column=0)
     
     btn_deposit=Button(frame_btn,text='Deposit',command=lambda: display_tab('deposit')  )
@@ -256,6 +260,7 @@ def deposit():
     else:
         update_info()
         balance=user_list[4]
+        
         cur.execute("UPDATE Users SET Balance = ? WHERE rowid = ?",(balance+int(tb_deposit.get()),user_list[0]))
         conn.commit()
         messagebox.showinfo("Transaction succesfull","Transaction completed successfully")
