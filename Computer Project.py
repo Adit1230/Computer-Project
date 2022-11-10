@@ -254,8 +254,8 @@ def deposit():
         messagebox.showwarning("Invalid deposit amount","Amount to deposit should be a number")
         return()
     else:
-        cur.execute("SELECT Balance FROM Users WHERE rowid = ?",(user_list[0],))
-        balance=cur.fetchone()
+        update_info()
+        balance=user_list[4]
         cur.execute("UPDATE Users SET Balance = ? WHERE rowid = ?",(balance+int(tb_deposit.get()),user_list[0]))
         conn.commit()
         messagebox.showinfo("Transaction succesfull","Transaction completed successfully")
