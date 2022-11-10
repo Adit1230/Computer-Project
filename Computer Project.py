@@ -249,10 +249,8 @@ def deposit():
     
     if tb_deposit.get()=='':
         messagebox.showwarning("Invalid deposit amount","Please enter amount to deposit")
-        return()
     elif not tb_deposit.get().isdigit():
         messagebox.showwarning("Invalid deposit amount","Amount to deposit should be a number")
-        return()
     else:
         update_info()
         balance=user_list[4]
@@ -320,10 +318,10 @@ def transfer():
     
     if transfer_amount=='':
         messagebox.showwarning("Invalid transfer amount","Please enter amount to transfer")
-        return()
     elif not transfer_amount.isdigit():
         messagebox.showwarning("Invalid transfer amount","Amount to transfer should be a number")
-        return()
+    elif tb_user.get()==user_list[2]:
+        messagebox.showwarning("Invalid Username","You cannot transfer money to yourself"
     else:
         update_info()
         balance=int(user_list[4])
