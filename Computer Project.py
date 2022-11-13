@@ -1,15 +1,18 @@
 from tkinter import *
 from tkinter import messagebox
+from tkinter import ttk
 import sqlite3
+import time
 
 user_list=[]
+trans_hist_limit=10
+notif_limit=10
 
 def init():
     conn=sqlite3.connect("Database.db")
     cur=conn.cursor()
 
-    if cur.execute("""SELECT * FROM sqlite_master WHERE type='table'""").fetchall()==[]:
-        cur.execute("""CREATE TABLE Users(Name text, Username text, Password text, Balance int);""")
+    cur.execute("""CREATE TABLE IF NOT EXISTS Users(Name text, Username text, Password text, Balance int, Trans_Hist text, Notifications text);""")
 
     conn.commit()
     conn.close()
@@ -23,6 +26,7 @@ def init_login(From):
     if From=='signup':
         signup_win.destroy()
     elif From=='main':
+        user_list.clear()
         main_win.destroy()
     
     login_win=Tk()
@@ -106,16 +110,20 @@ def init_main(From):
         login_win.destroy()
     elif From=='signup':
         signup_win.destroy()
+    
+    conn=sqlite3.connect("Database.db")
+    cur=conn.cursor()
 
     main_win=Tk()
+    main_win.title("Main page")
 
-    lbl_name=Label(main_win,text=("Name:"+user_list[1]))
+    lbl_name=Label(main_win,text=("Name : "+user_list[1]))
     lbl_name.grid(row=0,column=0)
     
-    lbl_username=Label(main_win,text=("Username:"+user_list[2]))
+    lbl_username=Label(main_win,text=("Username : "+user_list[2]))
     lbl_username.grid(row=1,column=0)
     
-    lbl_balance=Label(main_win,text=("Balance:"+str(user_list[4])))
+    lbl_balance=Label(main_win,text=("Balance : "+str(user_list[4])))
     lbl_balance.grid(row=2,column=0)
 
     btn_logout=Button(main_win,text="Logout",command=lambda: init_login('main'))
@@ -132,11 +140,24 @@ def init_main(From):
 
     btn_transfer=Button(frame_btn,text='Transfer',command=lambda: display_tab('transfer') )
     btn_transfer.grid(row=2,column=0)
+
+    btn_history=Button(frame_btn,text='Transaction History',command=lambda: display_tab('transaction history') )
+    btn_history.grid(row=3,column=0)
     
-    frame_content=Frame(main_win,width=500,height=500,pady=10)
+    frame_content=Frame(main_win,width=750,height=500,pady=10,padx=10)
     frame_content.grid(row=4,column=1)
-    
+
+    for i in eval(user_list[6]):
+        messagebox.showinfo("Money Transferred", i)
+    user_list[6]='[]'
+
+    cur.execute("UPDATE Users SET Notifications = '[]' WHERE rowid = ?", (user_list[0],))
+    conn.commit()
+
     main_win.mainloop()
+
+    conn.commit()
+    conn.close()
     
 def display_tab(tab):
     for widgets in frame_content.winfo_children():
@@ -154,26 +175,52 @@ def display_tab(tab):
         tb_transfer=Entry(frame_content)
         tb_transfer.grid(row=1,column=1)
 
-        btn_transfer = Button(frame_content , text = 'Transfer ' , command = transfer)
+        btn_transfer = Button(frame_content , text = 'Transfer ' , command = lambda: transfer(tb_transfer.get(), tb_user.get()))
         btn_transfer.grid(row=2, column = 0 , columnspan = 2)
 
-    if tab=='withdraw':
+    elif tab=='withdraw':
         global tb_withdraw
         
         lbl_withdraw = Label(frame_content , text = 'Enter amount to be withdrawn : ' ).grid(row=0 , column=0)
         tb_withdraw = Entry(frame_content)
         tb_withdraw.grid(row=0,column=1)
-        btn_withdraw = Button(frame_content , text = 'Withdraw' , command = withdraw)
+        btn_withdraw = Button(frame_content , text = 'Withdraw' , command = lambda: withdraw(tb_withdraw.get()))
         btn_withdraw.grid(row=1, column=0, columnspan = 2)
 
-    if tab=='deposit':
+    elif tab=='deposit':
         global tb_deposit
 
         lbl_deposit = Label(frame_content , text = 'Enter amount to be deposited : ' ).grid(row=0 , column=0)
         tb_deposit = Entry(frame_content)
         tb_deposit.grid(row=0,column=1)
-        btn_deposit = Button(frame_content , text = 'Deposit' , command = deposit)
+        btn_deposit = Button(frame_content , text = 'Deposit' , command = lambda: deposit(tb_deposit.get()))
         btn_deposit.grid(row=1, column=0, columnspan = 2)
+
+    elif tab=='transaction history':
+        table = ttk.Treeview(frame_content)
+
+        table['columns'] = ("Date", "Transaction", "Change in balance", "Total balance")
+
+        table.column("#0", width=0, stretch=NO)
+        table.column("Date", anchor=CENTER, width=75)
+        table.column("Transaction", anchor=W, width=200)
+        table.column("Change in balance", anchor=CENTER, width=100)
+        table.column("Total balance", anchor=CENTER, width=75)
+
+        table.heading("#0", text='', anchor=CENTER)
+        table.heading("Date", text="Date", anchor=CENTER)
+        table.heading("Transaction", text="Transaction", anchor=W)
+        table.heading("Change in balance", text="Change in Bal.", anchor=CENTER)
+        table.heading("Total balance", text="Total Bal.", anchor=CENTER)
+
+        update_info()
+
+        for i in range(len(user_list[5])):
+            table.insert(parent='', index=0, iid = len(user_list[5])-i, text='', values = user_list[5][i])
+
+        table.grid(row=0,column=0)
+    
+    return()
 
 def login():
     global user_list
@@ -185,25 +232,23 @@ def login():
     
     if tb_username.get()=='' or tb_password.get()=='':
         messagebox.showwarning("All fields are required","Please enter all required fields")
-        return()
     else:
         cur.execute("SELECT rowid,* FROM Users WHERE USERNAME=?",(tb_username.get(),))
         temp_list=cur.fetchone()
     
-    if temp_list==None:
-        messagebox.showwarning("Invalid username","Username does not exist")
-        return()
-    elif tb_password.get()==temp_list[3]:
-        user_list=list(temp_list)
-        login_win.destroy
-        init_main('login')
-        return()
-    else:
-        messagebox.showwarning("Wrong username or password","Username and password don't match")
-        return()
+        if temp_list==None:
+            messagebox.showwarning("Invalid username","Username does not exist")
+        elif tb_password.get()==temp_list[3]:
+            user_list=list(temp_list)
+            user_list[5]=eval(user_list[5])
+
+            init_main('login')
+        else:
+            messagebox.showwarning("Wrong username or password","Username and password don't match")
     
     conn.commit()
     conn.close()
+    return()
 
 def signup():
     global user_list
@@ -213,80 +258,91 @@ def signup():
     
     if tb_name.get()=='' or tb_username.get()=='' or tb_password.get()=='' or tb_reenterpass.get()=='' or tb_initdep.get()=='':
         messagebox.showwarning("All fields are required","Please enter all required fields")
-        return()
     elif len(tb_password.get())<8:
         messagebox.showwarning("Password too short","Password must be at least 8 characters long")
-        return()
     elif tb_password.get()!=tb_reenterpass.get():
         messagebox.showwarning("Password does not match","Password entered in password textbox does not match password entered in reenter password textbox")
-        return()
     elif not (tb_initdep.get().isdigit()):
         messagebox.showwarning("Invalid initial deposit","The initial deposit must be a number")
-        return()
     else:
         cur.execute("SELECT rowid,* FROM Users WHERE Username=?",(tb_username.get(),))
         temp_list=cur.fetchone()
 
-    if temp_list!=None:
-        messagebox.showwarning("Username already taken","Please choose another username")
-        return()
-    else:
-        cur.execute("INSERT INTO Users VALUES (?,?,?,?)",(tb_name.get(),tb_username.get(),tb_password.get(),int(tb_initdep.get())))
-        conn.commit()
-        
-        cur.execute("SELECT rowid,* FROM Users WHERE Username=?",(tb_username.get(),))
-        conn.commit()
-        
-        user_list=list(cur.fetchone())
-        init_main('signup')
+        if temp_list!=None:
+            messagebox.showwarning("Username already taken","Please choose another username")
+        else:
+            cur.execute("INSERT INTO Users VALUES (?,?,?,?,?,?)",(tb_name.get(),tb_username.get(),tb_password.get(),int(tb_initdep.get()),'[]','[]'))
+            conn.commit()
+            
+            cur.execute("SELECT rowid,* FROM Users WHERE Username=?",(tb_username.get(),))
+            conn.commit()
+            
+            user_list=list(cur.fetchone())
+            user_list[5]=eval(user_list[5])
+            init_main('signup')
 
     conn.commit()
     conn.close()
+    return()
 
-def deposit():
+def deposit(amount):
     conn=sqlite3.connect("Database.db")
     cur=conn.cursor()
     
-    if tb_deposit.get()=='':
+    if amount=='':
         messagebox.showwarning("Invalid deposit amount","Please enter amount to deposit")
-    elif not tb_deposit.get().isdigit():
+    elif not amount.isdigit():
         messagebox.showwarning("Invalid deposit amount","Amount to deposit should be a number")
     else:
         update_info()
         balance=user_list[4]
-        cur.execute("UPDATE Users SET Balance = ? WHERE rowid = ?",(balance+int(tb_deposit.get()),user_list[0]))
+        
+        cur.execute("UPDATE Users SET Balance = ? WHERE rowid = ?",(balance+int(amount),user_list[0]))
         conn.commit()
+
+        trans_hist=list(user_list[5])
+        if len(trans_hist)>=trans_hist_limit:
+            trans_hist.pop(0)
+        trans_hist.append([time.strftime("%d/%m/%Y"), "Deposited Rs."+amount, '+'+amount, balance+int(amount)])
+        cur.execute("UPDATE Users SET Trans_Hist = ? WHERE rowid = ?",(str(trans_hist),user_list[0]))
+        
         messagebox.showinfo("Transaction succesfull","Transaction completed successfully")
         update_info()
 
     conn.commit()
     conn.close()
-
-def withdraw():
+    return()
+    
+def withdraw(amount):
     conn=sqlite3.connect("Database.db")
     cur=conn.cursor()
 
-    if tb_withdraw.get()=='':
+    if amount=='':
         messagebox.showwarning("Invalid withdraw amount","Please enter amount to withdraw")
-        return()
-    elif not tb_withdraw.get().isdigit():
+    elif not amount.isdigit():
         messagebox.showwarning("Invalid withdraw amount","Amount to withdraw should be a number")
-        return()
     else:
         update_info()
         balance=int(user_list[4])
         
-        if int(tb_withdraw.get())>balance:
+        if int(amount)>balance:
             messagebox.showwarning("Error","You cannot withdraw more than you have in your account")
-            return()
         else:
             auth_win=Toplevel(main_win)
+            auth_win.title("Authentication")
 
             def confirm_pass():
                     if tb_pass.get()==user_list[3]:
                         auth_win.destroy()
                         
-                        cur.execute("UPDATE Users SET Balance = ? WHERE rowid = ?",(balance-int(tb_withdraw.get()),user_list[0]))
+                        cur.execute("UPDATE Users SET Balance = ? WHERE rowid = ?",(balance-int(amount),user_list[0]))
+                        conn.commit()
+
+                        trans_hist=list(user_list[5])
+                        if len(trans_hist)>=trans_hist_limit:
+                            trans_hist.pop(0)
+                        trans_hist.append([time.strftime("%d/%m/%Y"), "Withdrawed Rs."+amount , '-'+amount, balance-int(amount)])
+                        cur.execute("UPDATE Users SET Trans_Hist = ? WHERE rowid = ?",(str(trans_hist),user_list[0]))
                         conn.commit()
                         
                         messagebox.showinfo("Transaction succesful","Amount withdrawn successfully")
@@ -310,48 +366,68 @@ def withdraw():
     conn.close()
     return()
 
-def transfer():
+def transfer(amount,user):
     conn=sqlite3.connect("Database.db")
     cur=conn.cursor()
-
-    transfer_amount=tb_transfer.get()
     
-    if transfer_amount=='':
+    if amount=='':
         messagebox.showwarning("Invalid transfer amount","Please enter amount to transfer")
-    elif not transfer_amount.isdigit():
+    elif not amount.isdigit():
         messagebox.showwarning("Invalid transfer amount","Amount to transfer should be a number")
-    elif tb_user.get()==user_list[2]:
-        messagebox.showwarning("Invalid Username","You cannot transfer money to yourself"
+    elif user==user_list[2]:
+        messagebox.showwarning("Invalid Username","You cannot transfer money to yourself")
     else:
         update_info()
         balance=int(user_list[4])
         
-        cur.execute("SELECT rowid,Balance FROM Users WHERE Username=?",(tb_user.get(),))
+        cur.execute("SELECT rowid, Balance, Trans_Hist, Notifications FROM Users WHERE Username=?",(user,))
+        conn.commit()
         transferee_list=cur.fetchone()
         
-        if float(transfer_amount) >balance:
+        if float(amount) > balance:
             messagebox.showwarning("Error","You cannot transfer more than you have in your account")
-            return()
         elif transferee_list==None:
-            messagebox.showwarning("Invalid Username","No account with username "+tb_user.get()+" exists")
+            messagebox.showwarning("Invalid Username","No account with username "+user+" exists")
         else:
             auth_win=Toplevel(main_win)
+            auth_win.title("Authentication")
 
             def confirm_pass():
                 if tb_pass.get()==user_list[3]:
                     auth_win.destroy()
                     
-                    cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(balance-int(transfer_amount),user_list[0]))
+                    cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(balance-int(amount),user_list[0]))
                     conn.commit()
 
-                    cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(transferee_list[1]+int(transfer_amount),transferee_list[0]))
+                    cur.execute("UPDATE Users SET Balance=? WHERE rowid=?",(transferee_list[1]+int(amount),transferee_list[0]))
+                    conn.commit()
+
+                    trans_hist=list(user_list[5])
+                    if len(trans_hist)>=trans_hist_limit:
+                        trans_hist.pop(0)
+                    trans_hist.append([time.strftime("%d/%m/%Y"), "Transferred Rs."+amount+" to "+user, '-'+amount, balance-int(amount)])
+                    cur.execute("UPDATE Users SET Trans_Hist = ? WHERE rowid = ?",(str(trans_hist),user_list[0]))
+                    conn.commit()
+
+                    trans_hist=eval(transferee_list[2])
+                    if len(trans_hist)>=trans_hist_limit:
+                        trans_hist.pop(0)
+                    trans_hist.append([time.strftime("%d/%m/%Y"), "Received Rs."+amount+" from "+user_list[2], '+'+amount, transferee_list[1]+int(amount)])
+                    cur.execute("UPDATE Users SET Trans_Hist = ? WHERE rowid = ?",(str(trans_hist),transferee_list[0]))
+                    conn.commit()
+
+                    notifications=eval(transferee_list[3])
+                    if len(notifications)>=notif_limit:
+                        notifications.pop(0)
+                    notifications.append("Recieved Rs."+amount+" from "+user_list[2])
+                    cur.execute("UPDATE Users SET Notifications = ? WHERE rowid = ?", (str(notifications), transferee_list[0]))
                     conn.commit()
 
                     messagebox.showinfo("Transaction successful","Transaction completed successfully")
                     update_info()
-                    
+
                     return()
-                    
+
                 else:
                     auth_win.destroy()
                     messagebox.showwarning("Authentication failed","Wrong password, Please try again.")
@@ -380,8 +456,9 @@ def update_info():
 
     cur.execute("SELECT rowid, * FROM Users WHERE rowid = ?",(user_list[0],))
     user_list=list(cur.fetchone())
+    user_list[5]=eval(user_list[5])
 
-    lbl_balance.config(text=("Balance:"+str(user_list[4])))
+    lbl_balance.config(text=("Balance : "+str(user_list[4])))
     
     conn.commit()
     conn.close()
