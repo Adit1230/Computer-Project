@@ -36,7 +36,7 @@ def init_login(From):
     #Logo = PhotoImage(file ="Bank logo.jpg")
     #login_win.iconphoto(False, Logo)
     
-    lbl_login=Label(login_win,text="Login",justify='center',font = ('Arial ' , 25)).place(relx=0.5,rely=0.35,anchor='c')
+    lbl_login=Label(login_win,text="Login",justify='center',font = ('Arial ' , 25), fg='#05f').place(relx=0.5,rely=0.35,anchor='c')
 
     lbl_username=Label(login_win,text="Username:", font = ('Arial' , 15)).place(relx=0.42,rely=0.4 , anchor='c')
     tb_username=Entry(login_win ,font = ('Arial' , 15))
@@ -49,7 +49,7 @@ def init_login(From):
     btn_login=Button(text="Login",command=login,font = ('Arial' , 15))
     btn_login.place(relx=0.5 , rely=0.51,anchor = 'c')
 
-    lbl_signup=Label(login_win,text="Don't have an account?",font = ('Arial' , 15)).place(relx=0.5 , rely = 0.56 , anchor = 'c')
+    lbl_signup=Label(login_win,text="Don't have an account?",font = ('Arial' , 15), fg='#a00').place(relx=0.5 , rely = 0.56 , anchor = 'c')
     btn_signup=Button(text="Signup",font = ('Arial' , 15),command=lambda: init_signup('login'))
     btn_signup.place(relx=0.5 , rely = 0.61, anchor = 'c')
 
@@ -71,36 +71,39 @@ def init_signup(From):
     signup_win = Tk()
 
     signup_win.title("Sign-up Page")
-    signup_win.geometry('350x250')
+    signup_win.geometry('1500x750')
 
-    lbl_createacnt=Label(signup_win,text= 'Create an Account').grid(row=0,column=0,columnspan=2)
+    frame_ui = Frame(signup_win)
+    frame_ui.place(relx=0.375,rely=0.25)
 
-    lbl_name=Label(signup_win,text='Enter Name:').grid(row=1,column=0)
-    tb_name=Entry(signup_win,width=10)
-    tb_name.grid(row=1, column=1)
+    lbl_createacnt=Label(frame_ui,text= 'Create an Account', font = ('Arial' , 25), fg='#05f').grid(row=0,column=0,columnspan=2)
 
-    lbl_username=Label(signup_win, text= 'Enter Username:').grid(row=2,column=0)
-    tb_username=Entry(signup_win,width=10)
-    tb_username.grid(row=2,column=1)
+    lbl_name=Label(frame_ui,text='Enter Name:', font = ('Arial ' , 15)).grid(row=1,column=0,pady=5)
+    tb_name=Entry(frame_ui, width=10, font = ('Arial' , 15))
+    tb_name.grid(row=1, column=1,pady=5)
 
-    lbl_password=Label(signup_win, text= 'Enter Password:').grid(row=3,column=0)
-    tb_password=Entry(signup_win,width=10,show='*')
-    tb_password.grid(row=3,column=1)
+    lbl_username=Label(frame_ui, text= 'Enter Username:', font = ('Arial' , 15)).grid(row=2,column=0,pady=5)
+    tb_username=Entry(frame_ui, width=10, font = ('Arial' , 15))
+    tb_username.grid(row=2,column=1,pady=5)
 
-    lbl_reenterpass=Label(signup_win,text='Re-enter password:').grid(row=4,column=0)
-    tb_reenterpass=Entry(signup_win,width=10,show='*')
-    tb_reenterpass.grid(row=4,column=1)
+    lbl_password=Label(frame_ui, text= 'Enter Password:', font = ('Arial' , 15)).grid(row=3,column=0,pady=5)
+    tb_password=Entry(frame_ui,width=10,show='*', font = ('Arial' , 15))
+    tb_password.grid(row=3,column=1,pady=5)
 
-    lbl_initdep=Label(signup_win,text='Enter Initial Deposit:').grid(row=5,column=0)
-    tb_initdep=Entry(signup_win,width=10)
-    tb_initdep.grid(row=5,column=1)
+    lbl_reenterpass=Label(frame_ui,text='Re-enter password:', font = ('Arial' , 15)).grid(row=4,column=0,pady=5)
+    tb_reenterpass=Entry(frame_ui,width=10,show='*', font = ('Arial' , 15))
+    tb_reenterpass.grid(row=4,column=1,pady=5)
 
-    btn_signup=Button(signup_win, text='Sign Up',command=signup)
-    btn_signup.grid(row=6,column=0,columnspan=2)
+    lbl_initdep=Label(frame_ui,text='Enter Initial Deposit:', font = ('Arial' , 15)).grid(row=5,column=0,pady=5)
+    tb_initdep=Entry(frame_ui,width=10, font = ('Arial' , 15))
+    tb_initdep.grid(row=5,column=1,pady=5)
 
-    lbl_login=Label(signup_win,text="Already have an account?").grid(row=7,column=0,columnspan=2)
-    btn_login=Button(signup_win,text="Go back to login page",command=lambda: init_login('signup'))
-    btn_login.grid(row=8,column=0,columnspan=2)
+    btn_signup=Button(frame_ui, text='Sign Up',command=signup, font = ('Arial' , 15))
+    btn_signup.grid(row=6,column=0,columnspan=2,pady=10)
+
+    lbl_login=Label(frame_ui, text="Already have an account?", font = ('Arial' , 15), fg='#a00').grid(row=7,column=0,columnspan=2,pady=15)
+    btn_login=Button(frame_ui,text="Go back to login page", font = ('Arial' , 15), command=lambda: init_login('signup'))
+    btn_login.grid(row=8,column=0,columnspan=2,pady=0)
 
     signup_win.mainloop()
 
@@ -423,7 +426,7 @@ def transfer(amount,user):
                     notifications=eval(transferee_list[3])
                     if len(notifications)>=notif_limit:
                         notifications.pop(0)
-                    notifications.append("Recieved Rs."+amount+" from "+user_list[2])
+                    notifications.append("Received Rs."+amount+" from "+user_list[2])
                     cur.execute("UPDATE Users SET Notifications = ? WHERE rowid = ?", (str(notifications), transferee_list[0]))
                     conn.commit()
 
