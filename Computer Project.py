@@ -136,23 +136,24 @@ def init_main(From):
     btn_logout=Button(main_win,text="Logout",command=lambda: init_login('main'))
     btn_logout.grid(row=3,column=0)
 
-    frame_btn=Frame(main_win,width=500,height=500,pady=10)
-    frame_btn.grid(row=4,column=0)
+    frame_btn=Frame(main_win,width=50,height=100,pady=10)
+    frame_btn.grid(row=4,column=0,sticky=N)
     
-    btn_deposit=Button(frame_btn,text='Deposit',command=lambda: display_tab('deposit')  )
+    btn_deposit=Button(frame_btn,text='Deposit', width=15, command=lambda: display_tab('deposit')  )
     btn_deposit.grid(row=0,column=0)
     
-    btn_withdrawal=Button(frame_btn,text='Withdraw',command=lambda: display_tab('withdraw') )
+    btn_withdrawal=Button(frame_btn,text='Withdraw', width=15, command=lambda: display_tab('withdraw') )
     btn_withdrawal.grid(row=1,column=0)
 
-    btn_transfer=Button(frame_btn,text='Transfer',command=lambda: display_tab('transfer') )
+    btn_transfer=Button(frame_btn,text='Transfer', width=15, command=lambda: display_tab('transfer') )
     btn_transfer.grid(row=2,column=0)
 
-    btn_history=Button(frame_btn,text='Transaction History',command=lambda: display_tab('transaction history') )
+    btn_history=Button(frame_btn,text='Transaction History', width=15, command=lambda: display_tab('transaction history') )
     btn_history.grid(row=3,column=0)
     
     frame_content=Frame(main_win,width=750,height=500,pady=10,padx=10)
     frame_content.grid(row=4,column=1)
+    frame_content.grid_propagate(False)
 
     for i in eval(user_list[6]):
         messagebox.showinfo("Money Transferred", i)
@@ -173,37 +174,44 @@ def display_tab(tab):
     if tab=='transfer':
         global tb_user
         global tb_transfer
-        
-        lbl_user=Label(frame_content,text='Enter username of recepient :').grid(row=0,column=0)
-        tb_user=Entry(frame_content)
-        tb_user.grid(row=0,column=1)
 
-        lbl_amt=Label(frame_content,text='Enter amount to be transferred :').grid(row=1,column=0)
+        lbl_transfer=Label(frame_content, text="Transfer").grid(row=0,column=0,columnspan=2)
+        
+        lbl_user=Label(frame_content,text='Enter username of recepient :').grid(row=1,column=0)
+        tb_user=Entry(frame_content)
+        tb_user.grid(row=1,column=1)
+
+        lbl_amt=Label(frame_content,text='Enter amount to be transferred :').grid(row=2,column=0)
         tb_transfer=Entry(frame_content)
-        tb_transfer.grid(row=1,column=1)
+        tb_transfer.grid(row=2,column=1)
 
         btn_transfer = Button(frame_content , text = 'Transfer ' , command = lambda: transfer(tb_transfer.get(), tb_user.get()))
-        btn_transfer.grid(row=2, column = 0 , columnspan = 2)
+        btn_transfer.grid(row=3, column = 0 , columnspan = 2)
 
     elif tab=='withdraw':
         global tb_withdraw
+
+        lbl_withdraw=Label(frame_content, text="Withdraw").grid(row=0,column=0,columnspan=2)
         
-        lbl_withdraw = Label(frame_content , text = 'Enter amount to be withdrawn : ' ).grid(row=0 , column=0)
-        tb_withdraw = Entry(frame_content)
-        tb_withdraw.grid(row=0,column=1)
-        btn_withdraw = Button(frame_content , text = 'Withdraw' , command = lambda: withdraw(tb_withdraw.get()))
-        btn_withdraw.grid(row=1, column=0, columnspan = 2)
+        lbl_amount= Label(frame_content , text = 'Enter amount to be withdrawn : ' ).grid(row=1 , column=0)
+        tb_amount = Entry(frame_content)
+        tb_amount.grid(row=1,column=1)
+        btn_withdraw = Button(frame_content , text = 'Withdraw' , command = lambda: withdraw(tb_amount.get()))
+        btn_withdraw.grid(row=2, column=0, columnspan = 2)
 
     elif tab=='deposit':
         global tb_deposit
 
-        lbl_deposit = Label(frame_content , text = 'Enter amount to be deposited : ' ).grid(row=0 , column=0)
-        tb_deposit = Entry(frame_content)
-        tb_deposit.grid(row=0,column=1)
-        btn_deposit = Button(frame_content , text = 'Deposit' , command = lambda: deposit(tb_deposit.get()))
-        btn_deposit.grid(row=1, column=0, columnspan = 2)
+        lbl_deposit=Label(frame_content, text="Deposit").grid(row=0,column=0,columnspan=2)
+        
+        lbl_amount= Label(frame_content , text = 'Enter amount to be deposited : ' ).grid(row=1 , column=0)
+        tb_amount = Entry(frame_content)
+        tb_amount.grid(row=1,column=1)
+        btn_deposit = Button(frame_content , text = 'Deposit' , command = lambda: deposit(tb_amount.get()))
+        btn_deposit.grid(row=2, column=0, columnspan = 2)
 
     elif tab=='transaction history':
+        lbl_TransHist=Label(frame_content, text="Transaction History").grid(row=0,column=0)
         table = ttk.Treeview(frame_content)
 
         table['columns'] = ("Date", "Transaction", "Change in balance", "Total balance")
@@ -225,7 +233,7 @@ def display_tab(tab):
         for i in range(len(user_list[5])):
             table.insert(parent='', index=0, iid = len(user_list[5])-i, text='', values = user_list[5][i])
 
-        table.grid(row=0,column=0)
+        table.grid(row=1,column=0)
     
     return()
 
