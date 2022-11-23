@@ -3,6 +3,7 @@ from tkinter import messagebox
 from tkinter import ttk
 import sqlite3
 import time
+from PIL import ImageTk, Image
 
 user_list=[]
 trans_hist_limit=10
@@ -33,8 +34,8 @@ def init_login(From):
     login_win.geometry('1500x750')
     login_win.title("Login page")
 
-    #Logo = PhotoImage(file ="Bank logo.jpg")
-    #login_win.iconphoto(False, Logo)
+    Logo = ImageTk.PhotoImage(Image.open('Bank Logo.jpg'))
+    login_win.iconphoto(False, Logo)
     
     lbl_login=Label(login_win,text="Login",justify='center',font = ('Arial ' , 25), fg='#05f').place(relx=0.5,rely=0.35,anchor='c')
 
@@ -123,6 +124,7 @@ def init_main(From):
 
     main_win=Tk()
     main_win.title("Main page")
+    main_win.geometry('1250x750')
 
     lbl_name=Label(main_win,text=("Name : "+user_list[1]), font = ('Arial' , 15))
     lbl_name.grid(row=0,column=0)
@@ -134,10 +136,10 @@ def init_main(From):
     lbl_balance.grid(row=2,column=0)
 
     btn_logout=Button(main_win,text="Logout", font = ('Arial' , 15),command=lambda: init_login('main'))
-    btn_logout.grid(row=3,column=0)
+    btn_logout.grid(row=3, column=0, pady=10)
 
-    frame_btn=Frame(main_win,width=50,height=100,pady=10)
-    frame_btn.grid(row=4,column=0,sticky=N)
+    frame_btn=Frame(main_win,width=50,height=100)
+    frame_btn.grid(row=4, column=0, sticky=N, pady=20)
     
     btn_deposit=Button(frame_btn,text='Deposit', width=15, font = ('Arial' , 15), command=lambda: display_tab('deposit')  )
     btn_deposit.grid(row=0,column=0)
@@ -151,7 +153,7 @@ def init_main(From):
     btn_history=Button(frame_btn,text='Transaction History', width=15, font = ('Arial' , 15), command=lambda: display_tab('transaction history') )
     btn_history.grid(row=3,column=0)
     
-    frame_content=Frame(main_win,width=750,height=500,pady=10,padx=10)
+    frame_content=Frame(main_win,width=750,height=500,pady=10,padx=20)
     frame_content.grid(row=4,column=1)
     frame_content.grid_propagate(False)
 
@@ -212,15 +214,20 @@ def display_tab(tab):
 
     elif tab=='transaction history':
         lbl_TransHist=Label(frame_content, text="Transaction History", font = ('Arial' , 15), pady=20).grid(row=0,column=0)
-        table = ttk.Treeview(frame_content)
+                
+        style = ttk.Style()
+        style.configure("Style1.Treeview", font=('Arial', 15))
+        style.configure("Style1.Treeview.Heading", font=('Arial',15,'bold'))
+        
+        table = ttk.Treeview(frame_content, style="Style1.Treeview")
 
         table['columns'] = ("Date", "Transaction", "Change in balance", "Total balance")
 
         table.column("#0", width=0, stretch=NO)
-        table.column("Date", anchor=CENTER, width=75)
-        table.column("Transaction", anchor=W, width=200)
-        table.column("Change in balance", anchor=CENTER, width=100)
-        table.column("Total balance", anchor=CENTER, width=75)
+        table.column("Date", anchor=CENTER, width=125)
+        table.column("Transaction", anchor=W, width=300)
+        table.column("Change in balance", anchor=CENTER, width=150)
+        table.column("Total balance", anchor=CENTER, width=125)
 
         table.heading("#0", text='', anchor=CENTER)
         table.heading("Date", text="Date", anchor=CENTER)
