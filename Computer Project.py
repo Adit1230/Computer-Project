@@ -41,7 +41,7 @@ def init_login(From):
     lbl_bg=Label(login_win, image=Bg)
     lbl_bg.pack()
 
-    lbl_login=Label(login_win,text="Login",justify='center',font = ('Arial ' , 25), fg='#0f0',bg='#054175').place(relx=0.5,rely=0.35,anchor='c')
+    lbl_login=Label(login_win,text="Login",justify='center',font = ('Arial ' , 25, 'bold'), fg='#0f0',bg='#054175').place(relx=0.5,rely=0.35,anchor='c')
 
     lbl_username=Label(login_win,text="Username:", font = ('Arial' , 15), fg='#ffffff', bg='#054175').place(relx=0.42,rely=0.4 , anchor='c')
     tb_username=Entry(login_win ,font = ('Arial' , 15))
@@ -55,7 +55,7 @@ def init_login(From):
     btn_login.place(relx=0.5 , rely=0.51,anchor = 'c')
     login_win.bind('<Return>' , lambda event:login())
 
-    lbl_signup=Label(login_win,text="Don't have an account?",font = ('Arial' , 15), fg='#c00', bg='#085B9D').place(relx=0.5 , rely = 0.56 , anchor = 'c')
+    lbl_signup=Label(login_win,text="Don't have an account?",font = ('Calibri' , 15,'bold'), fg='#ffbf00', bg='#055d8b').place(relx=0.5 , rely = 0.56 , anchor = 'c')
     btn_signup=Button(text="Signup",font = ('Arial' , 15),command=lambda: init_signup('login'))
     btn_signup.place(relx=0.5 , rely = 0.61, anchor = 'c')
 
@@ -89,25 +89,25 @@ def init_signup(From):
     frame_ui = Frame(signup_win, bg='#055a86')
     frame_ui.place(relx=0.375,rely=0.25)
 
-    lbl_createacnt=Label(frame_ui,text= 'Create an Account', font = ('Arial' , 25), fg='#0f0', bg='#055a86').grid(row=0,column=0,columnspan=2)
+    lbl_createacnt=Label(frame_ui,text= 'Create an Account', font = ('Arial' , 25, 'bold'), fg='#0f0', bg='#055a86').grid(row=0,column=0,columnspan=2)
 
-    lbl_name=Label(frame_ui,text='Enter Name:', font = ('Arial ' , 15), bg='#055a86').grid(row=1,column=0,pady=5)
+    lbl_name=Label(frame_ui,text='Enter Name:', font = ('Arial ' , 15), bg='#055a86', fg='#ffffff').grid(row=1,column=0,pady=5)
     tb_name=Entry(frame_ui, width=10, font = ('Arial' , 15))
     tb_name.grid(row=1, column=1, pady=5, padx=5)
 
-    lbl_username=Label(frame_ui, text= 'Enter Username:', font = ('Arial' , 15), bg='#055a86').grid(row=2,column=0,pady=5)
+    lbl_username=Label(frame_ui, text= 'Enter Username:', font = ('Arial' , 15), bg='#055a86', fg='#ffffff').grid(row=2,column=0,pady=5)
     tb_username=Entry(frame_ui, width=10, font = ('Arial' , 15))
     tb_username.grid(row=2, column=1, pady=5, padx=5)
 
-    lbl_password=Label(frame_ui, text= 'Enter Password:', font = ('Arial' , 15), bg='#055a86').grid(row=3,column=0,pady=5)
+    lbl_password=Label(frame_ui, text= 'Enter Password:', font = ('Arial' , 15), bg='#055a86', fg='#ffffff').grid(row=3,column=0,pady=5)
     tb_password=Entry(frame_ui,width=10,show='*', font = ('Arial' , 15))
     tb_password.grid(row=3, column=1, pady=5, padx=5)
 
-    lbl_reenterpass=Label(frame_ui,text='Re-enter password:', font = ('Arial' , 15), bg='#055a86').grid(row=4,column=0,pady=5)
+    lbl_reenterpass=Label(frame_ui,text='Re-enter password:', font = ('Arial' , 15), bg='#055a86', fg='#ffffff').grid(row=4,column=0,pady=5)
     tb_reenterpass=Entry(frame_ui,width=10,show='*', font = ('Arial' , 15))
     tb_reenterpass.grid(row=4, column=1, pady=5, padx=5)
 
-    lbl_initdep=Label(frame_ui,text='Enter Initial Deposit:', font = ('Arial' , 15), bg='#055a86').grid(row=5,column=0,pady=5)
+    lbl_initdep=Label(frame_ui,text='Enter Initial Deposit:', font = ('Arial' , 15), bg='#055a86', fg='#ffffff').grid(row=5,column=0,pady=5)
     tb_initdep=Entry(frame_ui,width=10, font = ('Arial' , 15))
     tb_initdep.grid(row=5, column=1, pady=5, padx=5)
 
@@ -115,9 +115,9 @@ def init_signup(From):
     btn_signup.grid(row=6, column=0, columnspan=2, pady=10)
     signup_win.bind('<Return>' , lambda event:signup())
 
-    lbl_login=Label(frame_ui, text="Already have an account?", font = ('Arial' , 15), fg='#a00', bg='#055a86').grid(row=7,column=0,columnspan=2,pady=15)
+    lbl_login=Label(frame_ui, text="Already have an account?",font = ('Calibri' , 15,'bold'), fg='#ffbf00', bg='#055a86').grid(row=7,column=0,columnspan=2,pady=15)
     btn_login=Button(frame_ui,text="Go back to login page", font = ('Arial' , 15), command=lambda: init_login('signup'))
-    btn_login.grid(row=8,column=0,columnspan=2,pady=0)
+    btn_login.grid(row=8,column=0,columnspan=2,pady=5)
 
     signup_win.mainloop()
 
@@ -147,20 +147,20 @@ def init_main(From):
     lbl_bg=Label(main_win, image=Bg)
     lbl_bg.place(relx=0,rely=0, anchor='nw')
 
-    lbl_name=Label(main_win,text=("Name : "+user_list[1]), font = ('Arial' , 15))
-    lbl_name.grid(row=0,column=0)
+    lbl_name=Label(main_win,text=("Name : "+user_list[1]), font = ('Arial' , 15), bg='#010f4c', fg='#ffffff')
+    lbl_name.grid(row=0,column=0, padx=2, pady=2)
     
-    lbl_username=Label(main_win,text=("Username : "+user_list[2]), font = ('Arial' , 15))
-    lbl_username.grid(row=1,column=0)
+    lbl_username=Label(main_win,text=("Username : "+user_list[2]), font = ('Arial' , 15), bg='#010f4c', fg='#ffffff')
+    lbl_username.grid(row=1,column=0, padx=2, pady=2)
     
-    lbl_balance=Label(main_win,text=("Balance : "+str(user_list[4])), font = ('Arial' , 15))
-    lbl_balance.grid(row=2,column=0)
+    lbl_balance=Label(main_win,text=("Balance : "+str(user_list[4])), font = ('Arial' , 15), bg='#010f4c', fg='#ffffff')
+    lbl_balance.grid(row=2,column=0, padx=2, pady=2)
 
     btn_logout=Button(main_win,text="Logout", font = ('Arial' , 15),command=lambda: init_login('main'))
     btn_logout.grid(row=3, column=0, pady=10)
 
     frame_btn=Frame(main_win,width=50,height=100)
-    frame_btn.grid(row=4, column=0, sticky=N, pady=20)
+    frame_btn.grid(row=4, column=0, sticky=N, padx=10, pady=20)
     
     btn_deposit=Button(frame_btn,text='Deposit', width=15, font = ('Arial' , 15), command=lambda: display_tab('deposit')  )
     btn_deposit.grid(row=0,column=0)
@@ -180,6 +180,8 @@ def init_main(From):
 
     frame_centering=Frame(frame_content, bg='#7fd2df')
     frame_centering.place(relx=0.5,rely=0,anchor='n')
+
+    display_tab('deposit')
 
     for i in eval(user_list[6]):
         messagebox.showinfo("Money Transferred", i)
@@ -344,7 +346,9 @@ def deposit(amount):
     if amount=='':
         messagebox.showwarning("Invalid deposit amount","Please enter amount to deposit")
     elif not amount.isdigit():
-        messagebox.showwarning("Invalid deposit amount","Amount to deposit should be a number")
+        messagebox.showwarning("Invalid deposit amount","Amount to deposit should be a positive number rounded off to nearest rupee")
+    elif int(amount)==0:
+        messagebox.showwarning("Invalid deposit amount","Amount to deposit should be a positive number rounded off to nearest rupee")
     else:
         update_info()
         balance=user_list[4]
@@ -372,7 +376,9 @@ def withdraw(amount):
     if amount=='':
         messagebox.showwarning("Invalid withdraw amount","Please enter amount to withdraw")
     elif not amount.isdigit():
-        messagebox.showwarning("Invalid withdraw amount","Amount to withdraw should be a number")
+        messagebox.showwarning("Invalid deposit amount","Amount to deposit should be a positive number rounded off to nearest rupee")
+    elif int(amount)==0:
+        messagebox.showwarning("Invalid deposit amount","Amount to deposit should be a positive number rounded off to nearest rupee")
     else:
         update_info()
         balance=int(user_list[4])
@@ -429,7 +435,9 @@ def transfer(amount,user):
     if amount=='':
         messagebox.showwarning("Invalid transfer amount","Please enter amount to transfer")
     elif not amount.isdigit():
-        messagebox.showwarning("Invalid transfer amount","Amount to transfer should be a number")
+        messagebox.showwarning("Invalid deposit amount","Amount to deposit should be a positive number rounded off to nearest rupee")
+    elif int(amount)==0:
+        messagebox.showwarning("Invalid deposit amount","Amount to deposit should be a positive number rounded off to nearest rupee")
     elif user==user_list[2]:
         messagebox.showwarning("Invalid Username","You cannot transfer money to yourself")
     else:
